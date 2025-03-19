@@ -1,31 +1,47 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useQuery } from "react-query";
 import axios from "axios";
 
-import Task from '../components/Task';
+import Task from "../components/Task";
 
-const handleDelete = () => {}
-const handleUpdate = () => {}
+const fetchTasks = async () => {
+  // const response = await axios.get('https://<api-gateway-url>/tasks');
+  // return response.data;
+  return await [
+    { id: 1, title: "Demo Task", status: "IN PROGRESS", description: "This is a demo task." },
+    { id: 2, title: "Another Task", status: "TO DO", description: "This is another task." },
+  ];
+};
 
-const TaskList = () => {
-  const [tasks, setTasks] = useState([{title: 'Test Task', status: 'In Progress'}]);
-  const [isLoading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const Tasks = () => {
+  const {
+    data: tasks,
+    isLoading,
+    isError,
+    error,
+  } = useQuery("tasks", fetchTasks);
 
-  useEffect(() => {
-    axios
-      .get("https://<api-gateway-url>/tasks")
-      .then((response) => setTasks(response.data))
-      .catch((error) => setError(error.message));
-  }, []);
+  if (isLoading) return <p>Loading tasks...</p>;
+  if (isError) return <p>Error fetching tasks: {error.message}</p>;
 
   return (
     <div>
       <h1>Task List</h1>
-      <ul>
-        {tasks.map((task) => <Task task={task} />)}
-      </ul>
+      <div className="task-grid">
+        <div className="task-header">
+          <span>Title</span>
+          <span>Status</span>
+          <span>Description</span>
+          <span>Actions</span>
+        </div>
+        <ul>
+          {tasks.map((task) => (
+            <Task key={task.id} task={task} />
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };
 
-export default TaskList;
+export default Tasks;
