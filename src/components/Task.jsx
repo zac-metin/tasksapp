@@ -1,15 +1,17 @@
+
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-
-import Task from '../components/Task';
 
 const handleDelete = () => {}
 const handleUpdate = () => {}
 
-const TaskList = () => {
+const Task = (props) => {
   const [tasks, setTasks] = useState([{title: 'Test Task', status: 'In Progress'}]);
   const [isLoading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const { task } = props;
 
   useEffect(() => {
     axios
@@ -19,13 +21,12 @@ const TaskList = () => {
   }, []);
 
   return (
-    <div>
-      <h1>Task List</h1>
-      <ul>
-        {tasks.map((task) => <Task task={task} />)}
-      </ul>
-    </div>
+          <li key={task.id}>
+            {task.title} - {task.status}
+            <button onClick={() => handleDelete(task.id)}>Delete</button>
+            <button onClick={() => handleUpdate(task.id)}>Update</button>
+          </li>
   );
 };
 
-export default TaskList;
+export default Task;
