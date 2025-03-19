@@ -4,6 +4,8 @@ import axios from "axios";
 
 import Task from "../components/Task";
 
+import './Tasks.css'
+
 const fetchTasks = async () => {
   // const response = await axios.get('https://<api-gateway-url>/tasks');
   // return response.data;
@@ -26,13 +28,13 @@ const Tasks = () => {
 
   return (
     <div>
-      <h1>Task List</h1>
       <div className="task-grid">
-        <div className="task-header">
+        <div className="task-header task-item">  
+          <span></span>
           <span>Title</span>
           <span>Status</span>
           <span>Description</span>
-          <span>Actions</span>
+          <span></span>
         </div>
         <ul>
           {tasks.map((task) => (

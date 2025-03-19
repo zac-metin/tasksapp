@@ -49,6 +49,7 @@ const Task = ({ task }) => {
   const handleEdit = () => {
     setEditing(true);
   };
+
   const handleDelete = (taskId) => {
     setDeleting(true);
     mutateDelete(taskId);
@@ -56,11 +57,11 @@ const Task = ({ task }) => {
 
   const handleCancel = () => {
     setEditing(false);
-    setTaskData(task); 
+    setTaskData(task);
   };
 
   const handleSubmit = () => {
-    mutateEdit(taskData); 
+    mutateEdit(taskData);
   };
 
   const handleInputChange = (e) => {
@@ -73,19 +74,14 @@ const Task = ({ task }) => {
 
   return (
     <div className="task-item">
-      {isDeleting ? (
-        <p>Deleting...</p>
-      ) : isEditing ? (
-        <div className="task-edit">
+      {isDeletingTask && <p>Deleting...</p>}
+      {isEditing ? (
+        <>
+          <button className="task-cancel-button" onClick={handleCancel}>Cancel</button>
           <input
             type="text"
             name="title"
             value={taskData.title}
-            onChange={handleInputChange}
-          />
-          <textarea
-            name="description"
-            value={taskData.description}
             onChange={handleInputChange}
           />
           <select
@@ -97,18 +93,22 @@ const Task = ({ task }) => {
             <option value="IN PROGRESS">In Progress</option>
             <option value="COMPLETED">Completed</option>
           </select>
-          <button onClick={handleCancel}>Cancel</button>
-          <button onClick={handleSubmit} disabled={isEditingTask}>
+          <textarea
+            name="description"
+            value={taskData.description}
+            onChange={handleInputChange}
+          />
+          <button className="task-submit-button" onClick={handleSubmit} disabled={isEditingTask}>
             {isEditingTask ? "Saving..." : "Submit"}
           </button>
-        </div>
+        </>
       ) : (
         <div className="task-display">
+          <button className="task-edit-button" onClick={handleEdit}>Edit</button>
           <span>{taskData.title}</span>
           <span>{taskData.status}</span>
           <span>{taskData.description}</span>
-          <button onClick={handleEdit}>Edit</button>
-          <button onClick={() => handleDelete(taskData.id)}>Delete</button>
+          <button className="task-delete-button" onClick={() => handleDelete(taskData.id)}>Delete</button>
         </div>
       )}
     </div>
