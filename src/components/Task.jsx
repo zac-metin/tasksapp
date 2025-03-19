@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
 const deleteTask = async (taskId) => {
@@ -23,9 +23,10 @@ const Task = ({ task }) => {
   const [isDeleting, setDeleting] = useState(false);
   const [taskData, setTaskData] = useState(task);
 
-  const { mutate: mutateEdit, isLoading: isEditingTask } = useMutation(editTask, {
+  const editMutation = useMutation({
+    mutationFn: editTask,
     onSuccess: () => {
-      queryClient.invalidateQueries("tasks");
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       setEditing(false);
     },
     onError: () => {
@@ -33,26 +34,24 @@ const Task = ({ task }) => {
     },
   });
 
-  const { mutate: mutateDelete, isLoading: isDeletingTask } = useMutation(
-    deleteTask,
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries("tasks");
-        setDeleting(false);
-      },
-      onError: () => {
-        alert("Error deleting task.");
-      },
-    }
-  );
+  const deleteMutation = useMutation({
+    mutationFn: deleteTask,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      setDeleting(false);
+    },
+    onError: () => {
+      alert("Error deleting task.");
+    },
+  });
 
   const handleEdit = () => {
     setEditing(true);
   };
 
-  const handleDelete = (taskId) => {
+  const handleDelete = async (taskId) => {
     setDeleting(true);
-    mutateDelete(taskId);
+    await deleteMutation.mutateAsync(taskId);
   };
 
   const handleCancel = () => {
@@ -60,8 +59,8 @@ const Task = ({ task }) => {
     setTaskData(task);
   };
 
-  const handleSubmit = () => {
-    mutateEdit(taskData);
+  const handleSubmit = async () => {
+    await editMutation.mutateAsync(taskData);
   };
 
   const handleInputChange = (e) => {
@@ -74,10 +73,12 @@ const Task = ({ task }) => {
 
   return (
     <div className="task-item">
-      {isDeletingTask && <p>Deleting...</p>}
+      {deleteMutation.isPending && <p>Deleting...</p>}
       {isEditing ? (
         <>
-          <button className="task-cancel-button" onClick={handleCancel}>Cancel</button>
+          <button className="task-cancel-button" onClick={handleCancel}>
+            Cancel
+          </button>
           <input
             type="text"
             name="title"
@@ -98,17 +99,28 @@ const Task = ({ task }) => {
             value={taskData.description}
             onChange={handleInputChange}
           />
-          <button className="task-submit-button" onClick={handleSubmit} disabled={isEditingTask}>
-            {isEditingTask ? "Saving..." : "Submit"}
+          <button
+            className="task-submit-button"
+            onClick={handleSubmit}
+            disabled={editMutation.isPending}
+          >
+            {editMutation.isPending ? "Saving..." : "Submit"}
           </button>
         </>
       ) : (
         <div className="task-display">
-          <button className="task-edit-button" onClick={handleEdit}>Edit</button>
+          <button className="task-edit-button" onClick={handleEdit}>
+            Edit
+          </button>
           <span>{taskData.title}</span>
           <span>{taskData.status}</span>
           <span>{taskData.description}</span>
-          <button className="task-delete-button" onClick={() => handleDelete(taskData.id)}>Delete</button>
+          <button
+            className="task-delete-button"
+            onClick={() => handleDelete(taskData.id)}
+          >
+            Delete
+          </button>
         </div>
       )}
     </div>
