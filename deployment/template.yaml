@@ -1,0 +1,72 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  TasksTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: tasks
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      SSESpecification:
+        SSEEnabled: true
+      AttributeDefinitions:
+        - AttributeName: taskId
+          AttributeType: S
+        - AttributeName: status
+          AttributeType: S
+        - AttributeName: description
+          AttributeType: S
+      KeySchema:
+        - AttributeName: taskId
+          KeyType: HASH
+      # If we stored userId, I would probably have userId as the secondary/RANGE key
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+        # Because this is for a task management software
+        # I think we are best off retaining change history
+
+  TasksFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: TasksLambda
+      Handler: dist/index.handler
+      Runtime: nodejs18.x
+      CodeUri: .
+      MemorySize: 128
+      Timeout: 10
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TasksTable
+      Events:
+        GetAllTasks:
+          Type: Api
+          Properties:
+            Path: /tasks
+            Method: GET
+        GetTask:
+          Type: Api
+          Properties:
+            Path: /tasks/{id}
+            Method: GET
+        CreateTask:
+          Type: Api
+          Properties:
+            Path: /tasks
+            Method: POST
+        UpdateTask:
+          Type: Api
+          Properties:
+            Path: /tasks/{id}
+            Method: PUT
+        DeleteTask:
+          Type: Api
+          Properties:
+            Path: /tasks/{id}
+            Method: DELETE
+
+Outputs:
+  ApiUrl:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
