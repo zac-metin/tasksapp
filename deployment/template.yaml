@@ -27,15 +27,40 @@ Resources:
         # Because this is for a task management software
         # I think we are best off retaining change history
 
-  TasksFunction:
+  TasksApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: TasksApi
+      StageName: prod
+      Cors: "'*'"
+
+  GetTaskFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: TasksLambda
-      Handler: dist/index.handler
+      Handler: dist/getTask.handler
       Runtime: nodejs18.x
-      CodeUri: .
       MemorySize: 128
       Timeout: 10
+      CodeUri: .
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TasksTable
+      Events:
+        GetTask:
+          Type: Api
+          Properties:
+            Path: /tasks/{id}
+            Method: GET
+            RestApiId: !Ref TasksApi
+
+  GetAllTasksFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: dist/getAllTasks.handler
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Timeout: 10
+      CodeUri: .
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref TasksTable
@@ -45,28 +70,66 @@ Resources:
           Properties:
             Path: /tasks
             Method: GET
-        GetTask:
-          Type: Api
-          Properties:
-            Path: /tasks/{id}
-            Method: GET
+            RestApiId: !Ref TasksApi
+
+  CreateTaskFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: dist/createTask.handler
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Timeout: 10
+      CodeUri: .
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TasksTable
+      Events:
         CreateTask:
           Type: Api
           Properties:
             Path: /tasks
             Method: POST
+            RestApiId: !Ref TasksApi
+
+  UpdateTaskFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: dist/updateTask.handler
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Timeout: 10
+      CodeUri: .
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TasksTable
+      Events:
         UpdateTask:
           Type: Api
           Properties:
             Path: /tasks/{id}
             Method: PUT
+            RestApiId: !Ref TasksApi
+
+  DeleteTaskFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: dist/deleteTask.handler
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Timeout: 10
+      CodeUri: .
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TasksTable
+      Events:
         DeleteTask:
           Type: Api
           Properties:
             Path: /tasks/{id}
             Method: DELETE
+            RestApiId: !Ref TasksApi
 
-Outputs:
+  Outputs:
   ApiUrl:
     Description: "API Gateway endpoint URL"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Value: !Sub "https://${TasksApi}.execute-api.${AWS::Region}.amazonaws.com/prod/"
