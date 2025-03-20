@@ -8,6 +8,8 @@ const dynamoDb = new AWS.DynamoDB.DocumentClient();
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
+  logger.info({ message: "Retrieving all tasks", event });
+
   try {
     const params: AWS.DynamoDB.DocumentClient.ScanInput = {
       TableName: "tasks",
@@ -15,11 +17,16 @@ export const handler = async (
 
     const result = await dynamoDb.scan(params).promise();
 
+    const taskCount = result.Items ? result.Items.length : 0;
     logger.info({
-      message: `${
-        result.Items ? result.Items.length : 0
-      } tasks retrieved successfully`,
+      message: `${taskCount} tasks retrieved successfully`,
+      taskCount,
     });
+
+    if (taskCount === 0) {
+      logger.warn({ message: "No tasks found in the database" });
+    }
+
     return createSuccessResponse(200, result.Items || []);
   } catch (error) {
     logger.error({ error, message: "Error retrieving all tasks" });

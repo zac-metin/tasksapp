@@ -9,15 +9,19 @@ const dynamoDb = new AWS.DynamoDB.DocumentClient();
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
+  logger.info({ message: "Incoming request", event });
+
   try {
     const { body } = event;
     if (!body) {
+      logger.warn("Request body is missing");
       return createErrorResponse(400, "Request body is required");
     }
 
     const { title, description, status } = JSON.parse(body);
 
     if (!title || !status) {
+      logger.warn("Missing required fields: title, status");
       return createErrorResponse(400, "Missing required fields: title, status");
     }
 
@@ -27,9 +31,13 @@ export const handler = async (
       Item: { taskId, title, description, status },
     };
 
+    logger.info({ taskId, message: "Creating task in DynamoDB" });
     await dynamoDb.put(params).promise();
+
+    logger.info({ taskId, message: "Task created successfully" });
     return createSuccessResponse(201, { taskId, title, description, status });
   } catch (error) {
+    logger.error({ error, message: "Error creating task" });
     return createErrorResponse(500, "Internal Server Error");
   }
 };

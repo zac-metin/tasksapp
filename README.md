@@ -12,6 +12,8 @@ To deploy the backend, ensure you have AWS SAM CLI installed
 
 Authenticate either with CLI + Access Key ID & Secret Access Key, using AWS Cloudshell for direct in browser CLI, or you can use the V2 CLI and auth through a User / SSO
 
+The user that you are authenticating with should have the IAM policy outlined in deployment/sam-deploy-policy.json
+
 Once you are authenticated in your CLI, you can then run:
 
 sam build
