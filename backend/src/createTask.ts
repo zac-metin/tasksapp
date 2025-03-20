@@ -1,11 +1,14 @@
-import { APIGatewayProxyHandler } from "aws-lambda";
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import AWS from "aws-sdk";
 import { v4 as uuidv4 } from "uuid";
 
-const dynamoDb = new AWS.DynamoDB.DocumentClient();
-const TABLE_NAME = "tasks";
+import { logger, createErrorResponse, createSuccessResponse } from "./logging";
 
-export const handler: APIGatewayProxyHandler = async (event) => {
+const dynamoDb = new AWS.DynamoDB.DocumentClient();
+
+export const handler = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
   try {
     const { body } = event;
     if (!body) {
@@ -20,7 +23,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const taskId = uuidv4();
     const params = {
-      TableName: TABLE_NAME,
+      TableName: "tasks",
       Item: { taskId, title, description, status },
     };
 
@@ -30,13 +33,3 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     return createErrorResponse(500, "Internal Server Error");
   }
 };
-
-const createErrorResponse = (statusCode: number, message: string) => ({
-  statusCode,
-  body: JSON.stringify({ message }),
-});
-
-const createSuccessResponse = (statusCode: number, body: object) => ({
-  statusCode,
-  body: JSON.stringify(body),
-});

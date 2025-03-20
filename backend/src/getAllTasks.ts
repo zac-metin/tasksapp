@@ -1,8 +1,8 @@
-import { APIGatewayProxyHandler } from "aws-lambda";
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import AWS from "aws-sdk";
-import pino from "pino";
 
-const logger = pino({ level: "info" });
+import { logger, createErrorResponse, createSuccessResponse } from "./logging";
+
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 export const handler = async (
@@ -26,13 +26,3 @@ export const handler = async (
     return createErrorResponse(500, "Could not retrieve tasks");
   }
 };
-
-const createErrorResponse = (statusCode: number, message: string) => ({
-  statusCode,
-  body: JSON.stringify({ message }),
-});
-
-const createSuccessResponse = (statusCode: number, body: object) => ({
-  statusCode,
-  body: JSON.stringify(body),
-});
