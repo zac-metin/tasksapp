@@ -1,10 +1,14 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import AWS from "aws-sdk";
+import { DynamoDB } from "aws-sdk";
 import { v4 as uuidv4 } from "uuid";
 
 import { logger, createErrorResponse, createSuccessResponse } from "./logging";
 
-const dynamoDb = new AWS.DynamoDB.DocumentClient();
+const dynamoDb = new DynamoDB.DocumentClient({
+  endpoint:
+    process.env.DYNAMODB_ENDPOINT ||
+    "https://dynamodb.ap-southeast-2.amazonaws.com",
+});
 
 export const handler = async (
   event: APIGatewayProxyEvent

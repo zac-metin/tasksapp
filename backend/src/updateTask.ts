@@ -1,9 +1,12 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import AWS from "aws-sdk";
+import { DynamoDB } from "aws-sdk";
 import { logger, createErrorResponse, createSuccessResponse } from "./logging";
 
-const dynamoDb = new AWS.DynamoDB.DocumentClient();
-const TABLE_NAME = process.env.TABLE_NAME || "tasks";
+const dynamoDb = new DynamoDB.DocumentClient({
+  endpoint:
+    process.env.DYNAMODB_ENDPOINT ||
+    "https://dynamodb.ap-southeast-2.amazonaws.com",
+});
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -34,7 +37,7 @@ export const handler = async (
     }
 
     const params = {
-      TableName: TABLE_NAME,
+      TableName: "tasks",
       Key: { taskId: id },
       UpdateExpression:
         "set title = :title, description = :desc, status = :status",
