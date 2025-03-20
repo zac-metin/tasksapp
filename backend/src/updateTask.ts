@@ -36,11 +36,12 @@ export const handler = async (
     const params = {
       TableName: TABLE_NAME,
       Key: { taskId: id },
-      UpdateExpression: "set title = :t, description = :d, status = :s",
+      UpdateExpression:
+        "set title = :title, description = :desc, status = :status",
       ExpressionAttributeValues: {
-        ":t": title,
-        ":d": description,
-        ":s": status,
+        ":title": title,
+        ":description": description,
+        ":status": status,
       },
       ReturnValues: "ALL_NEW",
     };
