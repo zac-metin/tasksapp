@@ -75,3 +75,11 @@ Use `--no-confirm-changeset` flag if
 - Improve styling + UX in the frontend app
 - Testing for backend functions, time consuming due to complexity of mock objects for API gateway events
 - Bucket hosting on HTTP not very secure so ideally would move to Cloudfront and use SSL cert for secure HTTPS hosting
+
+## Github Actions Deployment
+
+Ideally if there was more time, deployment would not be manually done and instead the Github Actions setup to trigger on push would be setup
+
+This way we can use TBD and trigger deployment on pushes, ideally with manual production approval gates
+
+These could then also run our linter, tests etc.
