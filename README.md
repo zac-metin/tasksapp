@@ -2,7 +2,7 @@
 
 To run frontend locally use the command:
 
-npm run dev
+`npm run dev`
 
 To run the backend locally use the command:
 
