@@ -56,7 +56,7 @@ const Tasks = () => {
     (currentPage - 1) * tasksPerPage,
     currentPage * tasksPerPage
   );
-
+  
   return (
     <div>
       <div className="task-grid">

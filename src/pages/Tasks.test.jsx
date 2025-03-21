@@ -1,17 +1,22 @@
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import Tasks from "./Tasks";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
 jest.mock("@tanstack/react-query", () => ({
   useQuery: jest.fn(),
   useQueryClient: jest.fn(),
+  useMutation: jest.fn(),
 }));
 
 describe("Tasks Component", () => {
   it("renders tasks when data is loaded", async () => {
+    useMutation.mockReturnValue({
+      mutateAsync: jest.fn().mockResolvedValue({}),
+      isPending: false,
+    });
     const mockTasks = [
-      { id: "1", title: "Task 1", description: "Description 1", status: "TO DO" },
-      { id: "2", title: "Task 2", description: "Description 2", status: "IN PROGRESS" },
+      { taskId: "1", title: "Task 1", description: "Description 1", status: "TO DO" },
+      { taskId: "2", title: "Task 2", description: "Description 2", status: "IN PROGRESS" },
     ];
 
     useQuery.mockReturnValue({
@@ -64,8 +69,8 @@ describe("Tasks Component", () => {
 
   it("filters tasks based on search query", async () => {
     const mockTasks = [
-      { id: "1", title: "Task 1", description: "Description 1", status: "TO DO" },
-      { id: "2", title: "Task 2", description: "Description 2", status: "IN PROGRESS" },
+      { taskId: "1", title: "Task 1", description: "Description 1", status: "TO DO" },
+      { taskId: "2", title: "Task 2", description: "Description 2", status: "IN PROGRESS" },
     ];
 
     useQuery.mockReturnValue({
