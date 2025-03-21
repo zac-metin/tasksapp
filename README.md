@@ -76,6 +76,7 @@ Use `--no-confirm-changeset` flag if
 - Testing for backend functions, time consuming due to complexity of mock objects for API gateway events
 - Bucket hosting on HTTP not very secure so ideally would move to Cloudfront and use SSL cert for secure HTTPS hosting
 - API validation is light, and with more time it would be ideal to go more in depth with a focus on security
+- Given the time constraints the site was developed for desktop only, with more time I would implement mobile first responsive styling
 
 ## Github Actions Deployment
 
