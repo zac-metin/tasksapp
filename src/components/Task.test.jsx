@@ -25,7 +25,7 @@ describe("Task Component", () => {
   it("should render task details", () => {
     useMutation.mockReturnValue({
      mutateAsync: jest.fn().mockResolvedValue({}),
-    isPending: false,  // Ensure isPending is defined correctly
+    isPending: false,
     });
     render(<Task task={task} />);
     expect(screen.getByText(task.title)).toBeInTheDocument();

@@ -24,6 +24,7 @@ export const handler = async (
     const result = await dynamoDb.send(params);
 
     const taskCount = result.Items ? result.Items.length : 0;
+
     logger.info({
       message: `${taskCount} tasks retrieved successfully`,
       taskCount,

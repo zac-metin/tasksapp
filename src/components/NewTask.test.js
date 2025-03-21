@@ -14,13 +14,11 @@ describe("NewTask Component", () => {
   const mockOnCancel = jest.fn();
 
   beforeEach(() => {
-    // Reset mocks to ensure clean state between tests
     jest.clearAllMocks();
 
-    // Mock the return value of useMutation
     useMutation.mockReturnValue({
       mutateAsync: jest.fn(),
-      isPending: false, // Default value
+      isPending: false,
     });
   });
 

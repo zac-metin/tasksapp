@@ -11,7 +11,6 @@ const deleteTask = async (taskId) => {
 };
 
 const editTask = async (task) => {
-    console.log(task);
   const response = await axios.put(
     `https://3336gt4pq9.execute-api.ap-southeast-2.amazonaws.com/prod/tasks/${task.taskId}`,
     task,
@@ -23,7 +22,6 @@ const editTask = async (task) => {
 const Task = ({ task }) => {
   const queryClient = useQueryClient();
   const [isEditing, setEditing] = useState(false);
-//   const [isDeleting, setDeleting] = useState(false);
   const [taskData, setTaskData] = useState(task);
 
   const editMutation = useMutation({
@@ -61,7 +59,6 @@ const Task = ({ task }) => {
   };
 
   const handleSubmit = async () => {
-    console.log(taskData)
     await editMutation.mutateAsync(taskData);
   };
 
