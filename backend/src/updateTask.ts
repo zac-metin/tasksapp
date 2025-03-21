@@ -44,11 +44,11 @@ export const handler = async (
       UpdateExpression:
         "set title = :title, description = :desc, #status = :statustext",
       ExpressionAttributeNames: {
-        "#status": "status", // We've gotta do this since status is reserved word
+        "#status": "status",
       },
       ExpressionAttributeValues: {
         ":title": title,
-        ":description": description,
+        ":desc": description,
         ":statustext": status,
       },
       ReturnValues: "ALL_NEW",

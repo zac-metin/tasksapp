@@ -4,15 +4,18 @@ import axios from "axios";
 
 const deleteTask = async (taskId) => {
   const response = await axios.delete(
-    `https://3336gt4pq9.execute-api.ap-southeast-2.amazonaws.com/prod/tasks/${taskId}`
+    `https://3336gt4pq9.execute-api.ap-southeast-2.amazonaws.com/prod/tasks/${taskId}`,
+    { headers: { "Content-Type": "application/json" } }
   );
   return response.data;
 };
 
 const editTask = async (task) => {
+    console.log(task);
   const response = await axios.put(
-    `https://3336gt4pq9.execute-api.ap-southeast-2.amazonaws.com/prod/tasks/${task.id}`,
-    task
+    `https://3336gt4pq9.execute-api.ap-southeast-2.amazonaws.com/prod/tasks/${task.taskId}`,
+    task,
+    { headers: { "Content-Type": "application/json" } }
   );
   return response.data;
 };
@@ -58,6 +61,7 @@ const Task = ({ task }) => {
   };
 
   const handleSubmit = async () => {
+    console.log(taskData)
     await editMutation.mutateAsync(taskData);
   };
 
@@ -71,7 +75,6 @@ const Task = ({ task }) => {
 
   return (
     <div className="task-item">
-      {deleteMutation.isPending && <p>Deleting...</p>}
       {isEditing ? (
         <>
           <button className="task-cancel-button" onClick={handleCancel}>
@@ -116,9 +119,10 @@ const Task = ({ task }) => {
           <span>{taskData.description}</span>
           <button
             className="task-delete-button"
-            onClick={() => handleDelete(taskData.id)}
+            onClick={() => handleDelete(taskData.taskId)}
+            disabled={deleteMutation.isPending}
           >
-            Delete
+            {deleteMutation.isPending ? "Deleting..." : "Delete"}
           </button>
         </div>
       )}

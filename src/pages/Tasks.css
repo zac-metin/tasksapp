@@ -58,10 +58,6 @@ button {
   margin: 0px;
 }
 
-.task-submit-button:disabled {
-  background-color: #ccc;
-}
-
 .task-display {
   display: contents;
 }
@@ -78,6 +74,11 @@ button {
 .task-delete-button:hover,
 .task-cancel-button:hover {
   background-color: #d32f2f;
+}
+
+.task-submit-button:disabled,
+.task-delete-button:disabled {
+  background-color: #ccc;
 }
 
 .tasks-loading,

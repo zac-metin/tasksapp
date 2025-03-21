@@ -26,7 +26,13 @@ To invoke a function locally, you can use the following command - make sure to u
 
 ## Deploying the Frontend
 
-To deploy the frontend to AWS S3, run the following command:
+To deploy the frontend to AWS S3, run `jest` to ensure all tests are passing
+
+Then run the following command to build the code first:
+
+`npm run build`
+
+followed by
 
 `aws s3 sync dist/ s3://task-manager-pro-9000`
 
@@ -60,3 +66,12 @@ Use `--no-confirm-changeset` flag if
 - Use `node -v` to ensure you are using a modern nodeJS version, this app was built using node v20 but 20 or above should be fine
 
 - If running DynamoDB locally, make sure to use the UI to populate the data
+
+## Future Improvements
+
+- Add authentication via AWS Cognito
+- Modify tasks to be bound to individual users so they only see their tasks and only when authenticated via frontend login
+- Use Cognito Authorizer to allow auth based on Cognito User Pools for API Gateway
+- Improve styling + UX in the frontend app
+- Testing for backend functions, time consuming due to complexity of mock objects for API gateway events
+- Bucket hosting on HTTP not very secure so ideally would move to Cloudfront and use SSL cert for secure HTTPS hosting

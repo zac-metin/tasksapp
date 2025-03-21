@@ -6,7 +6,7 @@ import { logger, createErrorResponse, createSuccessResponse } from "./logging";
 
 const dynamoDb = new DynamoDBClient({
   region: "ap-southeast-2",
-  endpoint: process.env.DYNAMODB_ENDPOINT || undefined, // I only want to set this when it is locally running
+  endpoint: process.env.DYNAMODB_ENDPOINT || undefined,
 });
 
 export const handler = async (
