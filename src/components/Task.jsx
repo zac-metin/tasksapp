@@ -1,17 +1,17 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
 const deleteTask = async (taskId) => {
   const response = await axios.delete(
-    `https://<api-gateway-url>/tasks/${taskId}`
+    `https://3336gt4pq9.execute-api.ap-southeast-2.amazonaws.com/prod/tasks/${taskId}`
   );
   return response.data;
 };
 
 const editTask = async (task) => {
   const response = await axios.put(
-    `https://<api-gateway-url>/tasks/${task.id}`,
+    `https://3336gt4pq9.execute-api.ap-southeast-2.amazonaws.com/prod/tasks/${task.id}`,
     task
   );
   return response.data;
@@ -20,7 +20,7 @@ const editTask = async (task) => {
 const Task = ({ task }) => {
   const queryClient = useQueryClient();
   const [isEditing, setEditing] = useState(false);
-  const [isDeleting, setDeleting] = useState(false);
+//   const [isDeleting, setDeleting] = useState(false);
   const [taskData, setTaskData] = useState(task);
 
   const editMutation = useMutation({
@@ -38,7 +38,6 @@ const Task = ({ task }) => {
     mutationFn: deleteTask,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      setDeleting(false);
     },
     onError: () => {
       alert("Error deleting task.");
@@ -50,7 +49,6 @@ const Task = ({ task }) => {
   };
 
   const handleDelete = async (taskId) => {
-    setDeleting(true);
     await deleteMutation.mutateAsync(taskId);
   };
 
@@ -84,6 +82,7 @@ const Task = ({ task }) => {
             name="title"
             value={taskData.title}
             onChange={handleInputChange}
+            aria-label="Title"
           />
           <select
             name="status"

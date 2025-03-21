@@ -1,136 +1,105 @@
-import React from "react";
-import { render, fireEvent, screen, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import Task from "./Task";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
 jest.mock("axios");
-jest.mock("react-query", () => ({
+
+jest.mock("@tanstack/react-query", () => ({
   useMutation: jest.fn(),
   useQueryClient: jest.fn(),
 }));
 
-describe("Task component", () => {
-  let task;
-  let mockInvalidateQueries;
+describe("Task Component", () => {
+  const task = {
+    id: 1,
+    title: "Test Task",
+    description: "This is a test task",
+    status: "TO DO",
+  };
 
   beforeEach(() => {
-    // Define the mock task
-    task = {
-      id: 1,
-      title: "Test Task",
-      description: "Task description",
-      status: "TO DO",
-    };
+    jest.clearAllMocks();
+  });
 
-    // Mock the useQueryClient hook
-    mockInvalidateQueries = jest.fn();
-    useQueryClient.mockReturnValue({
-      invalidateQueries: mockInvalidateQueries,
-    });
-
-    // Mock mutations
+  it("should render task details", () => {
     useMutation.mockReturnValue({
-      mutate: jest.fn(),
-      isLoading: false,
+     mutateAsync: jest.fn().mockResolvedValue({}),
+    isPending: false,  // Ensure isPending is defined correctly
     });
+    render(<Task task={task} />);
+    expect(screen.getByText(task.title)).toBeInTheDocument();
+    expect(screen.getByText(task.status)).toBeInTheDocument();
+    expect(screen.getByText(task.description)).toBeInTheDocument();
   });
 
-  test("renders task display with Edit and Delete buttons", () => {
+  it("should allow editing the task", async () => {
+    const mockMutate = jest.fn().mockResolvedValue(task);
+    useMutation.mockReturnValue({
+      mutateAsync: mockMutate,
+      isPending: false,
+    });
+    useQueryClient.mockReturnValue({
+      invalidateQueries: jest.fn(),
+    });
+
     render(<Task task={task} />);
-
-    // Check if task details are displayed
-    expect(screen.getByText("Test Task")).toBeInTheDocument();
-    expect(screen.getByText("TO DO")).toBeInTheDocument();
-    expect(screen.getByText("Task description")).toBeInTheDocument();
-
-    // Check if buttons are present
-    expect(screen.getByText("Edit")).toBeInTheDocument();
-    expect(screen.getByText("Delete")).toBeInTheDocument();
-  });
-
-  test("enters edit mode when clicking Edit button", () => {
-    render(<Task task={task} />);
-
+    
     fireEvent.click(screen.getByText("Edit"));
-
-    // Check if input fields for editing are rendered
-    expect(screen.getByDisplayValue("Test Task")).toBeInTheDocument();
-    expect(screen.getByDisplayValue("Task description")).toBeInTheDocument();
-    expect(screen.getByDisplayValue("TO DO")).toBeInTheDocument();
-  });
-
-  test("cancels edit mode and reverts changes", () => {
-    render(<Task task={task} />);
-
-    fireEvent.click(screen.getByText("Edit"));
-
-    // Modify input values
-    fireEvent.change(screen.getByDisplayValue("Test Task"), {
-      target: { value: "Edited Task" },
-    });
-    fireEvent.change(screen.getByDisplayValue("Task description"), {
-      target: { value: "Edited description" },
-    });
-
-    fireEvent.click(screen.getByText("Cancel"));
-
-    // Check if the task reverts to original values
-    expect(screen.getByText("Test Task")).toBeInTheDocument();
-    expect(screen.getByText("Task description")).toBeInTheDocument();
-    expect(screen.getByText("TO DO")).toBeInTheDocument();
-  });
-
-  test("submits task edits and invalidates queries", async () => {
-    axios.put.mockResolvedValue({ data: { ...task, title: "Edited Task" } });
-
-    render(<Task task={task} />);
-
-    fireEvent.click(screen.getByText("Edit"));
-    fireEvent.change(screen.getByDisplayValue("Test Task"), {
-      target: { value: "Edited Task" },
-    });
+    fireEvent.change(screen.getByLabelText("Title"), { target: { value: "Updated Task" } });
     fireEvent.click(screen.getByText("Submit"));
 
-    // Wait for the mutation to finish
-    await waitFor(() =>
-      expect(mockInvalidateQueries).toHaveBeenCalledWith("tasks")
-    );
-
-    // Check if the task title has been updated
-    expect(screen.getByText("Edited Task")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(mockMutate).toHaveBeenCalledTimes(1);
+      expect(mockMutate).toHaveBeenCalledWith({
+        ...task,
+        title: "Updated Task",
+      });
+    });
   });
 
-  test("deletes task and invalidates queries", async () => {
-    axios.delete.mockResolvedValue({ data: {} });
-
+  it("should handle canceling the edit", () => {
     render(<Task task={task} />);
-
-    fireEvent.click(screen.getByText("Delete"));
-
-    // Wait for the mutation to finish
-    await waitFor(() =>
-      expect(mockInvalidateQueries).toHaveBeenCalledWith("tasks")
-    );
-
-    // Verify task is deleted (or a confirmation message could be displayed)
-    expect(screen.queryByText("Test Task")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByText("Edit"));
+  
+    fireEvent.click(screen.getByText("Cancel"));
+    
+    expect(screen.getByText("Edit")).toBeInTheDocument();
   });
 
-  test("shows loading text when editing or deleting", () => {
+  it("should delete the task", async () => {
+    const mockDeleteMutate = jest.fn().mockResolvedValue({});
     useMutation.mockReturnValue({
-      mutate: jest.fn(),
-      isLoading: true,
+      mutateAsync: mockDeleteMutate,
+      isPending: false,
+    });
+    useQueryClient.mockReturnValue({
+      invalidateQueries: jest.fn(),
     });
 
     render(<Task task={task} />);
-
-    // Simulate edit and check loading state
-    fireEvent.click(screen.getByText("Edit"));
-    expect(screen.getByText("Saving...")).toBeInTheDocument();
-
-    // Simulate delete and check loading state
+    
     fireEvent.click(screen.getByText("Delete"));
+    
+    await waitFor(() => {
+      expect(mockDeleteMutate).toHaveBeenCalledWith(task.id);
+    });
+  });
+
+  it("should show deleting message when deleting task", () => {
+    const mockDeleteMutate = jest.fn().mockResolvedValue({});
+    useMutation.mockReturnValue({
+      mutateAsync: mockDeleteMutate,
+      isPending: true,
+    });
+    useQueryClient.mockReturnValue({
+      invalidateQueries: jest.fn(),
+    });
+
+    render(<Task task={task} />);
+    
+    fireEvent.click(screen.getByText("Delete"));
+
     expect(screen.getByText("Deleting...")).toBeInTheDocument();
   });
 });

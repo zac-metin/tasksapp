@@ -24,7 +24,7 @@ ul {
   align-items: center;
   width: 100vw;
   max-width: 100vw;
-  grid-template-columns: 70px 1fr;
+  grid-template-columns: 50px 1fr;
 }
 
 .app-name {
@@ -32,4 +32,10 @@ ul {
   font-weight: bold;
   margin: 0px;
   font-size: 1.5em;
+}
+
+@media (prefers-color-scheme: light) {
+  button {
+    background-color: #b8b8b8;
+  }
 }

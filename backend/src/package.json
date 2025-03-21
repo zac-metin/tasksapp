@@ -4,9 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "postbuild": "mkdir ../dist/node_modules && cp -r node_modules ../dist"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.772.0",
+    "@aws-sdk/lib-dynamodb": "^3.772.0",
     "@types/aws-lambda": "^8.10.147",
     "aws-sdk": "^2.1692.0",
     "axios": "^1.8.3",

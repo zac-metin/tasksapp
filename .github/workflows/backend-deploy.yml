@@ -1,0 +1,35 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches:
+      - mainnnnn
+    paths:
+      - "backend/src/**"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up AWS SAM CLI
+        run: |
+          curl -sL https://github.com/aws/aws-sam-cli/releases/latest/download/aws-sam-cli-linux-x86_64.zip -o samcli.zip
+          unzip samcli.zip -d samcli
+          sudo ./samcli/install
+
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          npm install
+
+      - name: Deploy Backend using SAM
+        run: |
+          cd backend
+          sam deploy --stack-name task-manager-pro-9000 --capabilities CAPABILITY_IAM
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: "ap-southeast-2"

@@ -1,13 +1,15 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { DynamoDB } from "aws-sdk";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { ScanCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
 import { logger, createErrorResponse, createSuccessResponse } from "./logging";
 
-const dynamoDb = new DynamoDB.DocumentClient({
-  endpoint:
-    process.env.DYNAMODB_ENDPOINT ||
-    "https://dynamodb.ap-southeast-2.amazonaws.com",
+const dynamoDbClient = new DynamoDBClient({
+  region: "ap-southeast-2",
+  endpoint: process.env.DYNAMODB_ENDPOINT || undefined,
 });
+
+const dynamoDb = DynamoDBDocumentClient.from(dynamoDbClient);
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -15,11 +17,11 @@ export const handler = async (
   logger.info({ message: "Retrieving all tasks", event });
 
   try {
-    const params: AWS.DynamoDB.DocumentClient.ScanInput = {
+    const params = new ScanCommand({
       TableName: "tasks",
-    };
+    });
 
-    const result = await dynamoDb.scan(params).promise();
+    const result = await dynamoDb.send(params);
 
     const taskCount = result.Items ? result.Items.length : 0;
     logger.info({

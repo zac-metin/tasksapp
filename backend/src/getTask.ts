@@ -1,13 +1,15 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { DynamoDB } from "aws-sdk";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient, GetCommand } from "@aws-sdk/lib-dynamodb";
 
 import { logger, createErrorResponse, createSuccessResponse } from "./logging";
 
-const dynamoDb = new DynamoDB.DocumentClient({
-  endpoint:
-    process.env.DYNAMODB_ENDPOINT ||
-    "https://dynamodb.ap-southeast-2.amazonaws.com",
+const dynamoDbClient = new DynamoDBClient({
+  region: "ap-southeast-2",
+  endpoint: process.env.DYNAMODB_ENDPOINT || undefined,
 });
+
+const dynamoDb = DynamoDBDocumentClient.from(dynamoDbClient);
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -22,11 +24,12 @@ export const handler = async (
   }
 
   try {
-    const params = {
+    const params = new GetCommand({
       TableName: "tasks",
       Key: { taskId: id },
-    };
-    const result = await dynamoDb.get(params).promise();
+    });
+
+    const result = await dynamoDb.send(params);
 
     if (!result.Item) {
       logger.warn({ id, message: "Task not found" });

@@ -28,24 +28,28 @@ To invoke a function locally, you can use the following command - make sure to u
 
 To deploy the frontend to AWS S3, run the following command:
 
-`aws s3 sync build/ s3://task-manager-pro-9000`
+`aws s3 sync dist/ s3://task-manager-pro-9000`
 
 ## Deploying the Backend
 
 To manually deploy the backend, ensure you have AWS SAM CLI installed
 
-Run `npx tsc` (or you can npm i -g typescript and run tsc) to build your dist folder first.
+Run `cd backend` and `npx tsc` (or you can npm i -g typescript and run tsc) to build your dist folder first.
+
+Then run `cd src` and `npm run postbuild` to copy node_modules into the dist folder
 
 Authenticate either with CLI + Access Key ID & Secret Access Key, using AWS Cloudshell for direct in browser CLI, or you can use the V2 CLI and auth through a User / SSO
 
 The user that you are authenticating with should have the IAM policy outlined in deployment/sam-deploy-policy.json
 
-Once you are authenticated in your CLI, you can then run:
+Once you are authenticated in your CLI, you can then run the following from the backend folder:
 
 `sam build`
 `sam deploy`
 
 Use `--guided` flag on sam deploy if this is the first time deployment
+
+Use `--no-confirm-changeset` flag if
 
 ## Troubleshooting
 

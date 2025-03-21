@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "outDir": "./dist",
+    "outDir": "./backend/dist",
     "target": "ES6",
     "module": "commonjs",
     "strict": true
   },
-  "include": ["backend/src/**/*.ts"]
+  "include": ["backend/src/**/*.ts", "backend/src/node_modules/**/*.js"]
 }

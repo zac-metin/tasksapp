@@ -1,29 +1,30 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { DynamoDB } from "aws-sdk";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DeleteCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { logger, createErrorResponse, createSuccessResponse } from "./logging";
 
-const dynamoDb = new DynamoDB.DocumentClient({
-  endpoint:
-    process.env.DYNAMODB_ENDPOINT ||
-    "https://dynamodb.ap-southeast-2.amazonaws.com",
+const dynamoDbClient = new DynamoDBClient({
+  region: "ap-southeast-2",
+  endpoint: process.env.DYNAMODB_ENDPOINT || undefined,
 });
+
+const dynamoDb = DynamoDBDocumentClient.from(dynamoDbClient);
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
     const id = event.pathParameters?.id;
-
     if (!id) {
       return createErrorResponse(400, "Task ID is required");
     }
 
-    const params = {
+    const params = new DeleteCommand({
       TableName: "tasks",
       Key: { taskId: id },
-    };
+    });
 
-    await dynamoDb.delete(params).promise();
+    await dynamoDb.send(params);
     logger.info({ id, message: "Task deleted successfully" });
 
     return createSuccessResponse(204, {});
