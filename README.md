@@ -75,6 +75,7 @@ Use `--no-confirm-changeset` flag if
 - Improve styling + UX in the frontend app
 - Testing for backend functions, time consuming due to complexity of mock objects for API gateway events
 - Bucket hosting on HTTP not very secure so ideally would move to Cloudfront and use SSL cert for secure HTTPS hosting
+- API validation is light, and with more time it would be ideal to go more in depth with a focus on security
 
 ## Github Actions Deployment
 
